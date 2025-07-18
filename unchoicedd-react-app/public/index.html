@@ -3,57 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unchoiced React App</title>
-    <!-- Tailwind CSS CDN -->
+    <title>EatHere</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- Custom CSS for React Project --- */
-        /* This section contains styles not easily expressed with Tailwind utility classes. */
-
-        /* Global font-family */
-        body {
-            font-family: 'Inter', sans-serif; /* Using 'Inter' for a clean, modern look */
-        }
-
-        /* Keyframe animation for subtle fade-in and scale effect (used on dish card) */
-        .animate-fade-in-scale {
-            animation: fadeInScale 0.4s ease-out forwards;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .animate-fade-in-scale { animation: fadeInScale 0.4s ease-out forwards; }
         @keyframes fadeInScale {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
-
-        /* Custom text shadow for better readability of text on image backgrounds (e.g., preference selection) */
-        .text-shadow-md {
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        }
-
-        /* Ensure the #root element fills the entire viewport height to allow for proper flex layout */
-        #root {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .text-shadow-md { text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        #root { min-height: 100vh; display: flex; flex-direction: column; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- This is the root div where your entire React application will be rendered. -->
     <div id="root"></div>
 
-    <!-- React and ReactDOM CDNs -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Babel for JSX transformation (for development only) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Your React App Component -->
-    <!-- This script loads your App.js file. The 'type="text/babel"' attribute is crucial for Babel to process its JSX. -->
+    <script type="text/babel" src="./data/foodData.js"></script>
+    <script type="text/babel" src="./components/CategoryCard.js"></script>
+    <script type="text/babel" src="./components/PreferenceSelector.js"></script>
+    <script type="text/babel" src="./components/LoginScreen.js"></script>
+    <script type="text/babel" src="./components/DishDetailPage.js"></script>
+    <script type="text/babel" src="./components/HomePage.js"></script>
+    <script type="text/babel" src="./components/LoadingScreen.js"></script>
     <script type="text/babel" src="App.js"></script>
 
     <script type="text/babel">
-        // Render the main React App component into the 'root' div
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
