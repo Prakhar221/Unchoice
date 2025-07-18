@@ -1,190 +1,193 @@
-import React, { useState, useEffect, useCallback } from "react";
-// No Firebase imports needed here as it's completely removed
+import React, { useState, useCallback, useMemo } from "react"; // Removed useEffect, added useMemo
 
 // Main App Component
 function App() {
   // --- State Management ---
-  const [currentScreen, setCurrentScreen] = useState("login"); // Start directly at login screen
-  const [user, setUser] = useState(null); // Dummy user object
+  const [currentScreen, setCurrentScreen] = useState("login");
+  const [user, setUser] = useState(null);
   const [authMessage, setAuthMessage] = useState({ text: "", type: "" });
-  const [isLoginMode, setIsLoginMode] = useState(true); // true for login, false for signup
-  const [currentFoodType, setCurrentFoodType] = useState(null); // 'veg', 'non-veg', or null (for preference selection)
-  const [selectedDish, setSelectedDish] = useState(null); // Dish object for detail screen
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [currentFoodType, setCurrentFoodType] = useState(null);
+  const [selectedDish, setSelectedDish] = useState(null);
 
   // Food Data with type property for filtering
-  const foodData = [
-    {
-      id: "chole-bhature",
-      category: "Chole Bhature",
-      placeName: "Sita Ram Diwan Chand",
-      why: "Perfectly spiced chole, fluffy yet substantial bhature. A decades-old institution.",
-      address: "2243, Chuna Mandi, Paharganj, New Delhi",
-      source: "Local food expert consensus",
-      mapsLink: "https://maps.app.goo.gl/Fj777C2M472L6S3S7",
-      type: "veg",
-    },
-    {
-      id: "butter-chicken",
-      category: "Butter Chicken",
-      placeName: "Moti Mahal",
-      why: "The legendary birthplace of the dish. Creamy, tangy, and unapologetically rich.",
-      address: "3703, Netaji Subhash Marg, Daryaganj, New Delhi",
-      source: "Historical food records",
-      mapsLink: "https://maps.app.goo.gl/Gk888D3N583M7T4T8",
-      type: "non-veg",
-    },
-    {
-      id: "aloo-tikki",
-      category: "Aloo Tikki Chaat",
-      placeName: "Prabhu Chaat Bhandar",
-      why: "Crispy on the outside, soft on the inside. Drowned in a perfect blend of sweet and spicy chutneys.",
-      address: "Dholpur House, Shahjahan Road, Man Singh Road, New Delhi",
-      source: "Street food connoisseur network",
-      mapsLink: "https://maps.app.goo.gl/Hl999E4O694N8U5U9",
-      type: "veg",
-    },
-    {
-      id: "kulfi",
-      category: "Kulfi",
-      placeName: "Kuremal Mohan Lal Kulfi Wale",
-      why: "Inventive fruit-stuffed kulfis and intensely flavored classics. A unique, frozen delight.",
-      address:
-        "Shop No. 526, Kucha Pati Ram, Sitaram Bazar, Chawri Bazar, New Delhi",
-      source: "Generational family recommendation",
-      mapsLink: "https://maps.app.goo.gl/Im000F5P705O9V6V0",
-      type: "veg",
-    },
-    {
-      id: "shahi-paneer",
-      category: "Shahi Paneer",
-      placeName: "Kake Da Hotel",
-      why: "Rich, creamy, and authentic Mughlai Shahi Paneer with perfectly soft paneer cubes. A Delhi classic.",
-      address: "67, Municipal Market, Connaught Place, New Delhi",
-      source: "Local food blogger favorite",
-      mapsLink: "https://maps.app.goo.gl/ShahiPaneerKakeDaHotel",
-      type: "veg",
-    },
-    {
-      id: "dal-makhani",
-      category: "Dal Makhani",
-      placeName: "Bukhara (ITC Maurya)",
-      why: "Slow-cooked to perfection, this iconic Dal Makhani is renowned for its smoky flavor and velvety texture.",
-      address: "ITC Maurya, Diplomatic Enclave, Sardar Patel Marg, New Delhi",
-      source: "Globally acclaimed restaurant",
-      mapsLink: "https://maps.app.goo.gl/DalMakhaniBukhara",
-      type: "veg",
-    },
-    {
-      id: "chicken-biryani",
-      category: "Chicken Biryani",
-      placeName: "Andhra Bhavan",
-      why: "Spicy, aromatic, and packed with flavor, their Hyderabadi-style Chicken Biryani offers a fiery kick.",
-      address: "1, Ashoka Road, Feroze Shah Road, New Delhi",
-      source: "Authentic regional cuisine",
-      mapsLink: "https://maps.app.goo.gl/ChickenBiryaniAndhraBhavan",
-      type: "non-veg",
-    },
-    {
-      id: "momos",
-      category: "Momos",
-      placeName: "Dolma Aunty Momos",
-      why: "A legendary street food joint famous for its juicy, flavorful momos served with spicy red chutney.",
-      address: "Shop No. 39, Central Market, Lajpat Nagar II, New Delhi",
-      source: "Delhi's favorite momo spot",
-      mapsLink: "https://maps.app.goo.gl/MomosDolmaAunty",
-      type: "non-veg",
-    },
-    {
-      id: "jalebi",
-      category: "Jalebi",
-      placeName: "Old Famous Jalebi Wala",
-      why: "Crispy, syrupy, and made fresh, these jalebis are a sweet delight from Old Delhi's culinary heritage.",
-      address: "Dariba Kalan, Chandni Chowk, Old Delhi, New Delhi",
-      source: "Historic sweet shop",
-      mapsLink: "https://maps.app.goo.gl/JalebiOldFamous",
-      type: "veg",
-    },
-    {
-      id: "nihari",
-      category: "Nihari",
-      placeName: "Jawahar Hotel",
-      why: "A traditional slow-cooked meat stew, rich and flavorful, perfect for a hearty breakfast.",
-      address: "Matia Mahal Road, Near Jama Masjid, Old Delhi, New Delhi",
-      source: "Old Delhi's culinary gems",
-      mapsLink: "https://maps.app.goo.gl/NihariJawaharHotel",
-      type: "non-veg",
-    },
-    {
-      id: "parathas",
-      category: "Parathas",
-      placeName: "Paranthe Wali Gali",
-      why: "A historic lane dedicated to various stuffed parathas, deep-fried and served with chutneys and pickles.",
-      address: "Paranthe Wali Gali, Chandni Chowk, Old Delhi, New Delhi",
-      source: "Iconic street food lane",
-      mapsLink: "https://maps.app.goo.gl/ParathasGali",
-      type: "veg",
-    },
-    {
-      id: "golgappe",
-      category: "Golgappe/Pani Puri",
-      placeName: "Prince's Paan & Chaat",
-      why: "Crispy puris filled with spicy tangy water and chickpeas, a burst of flavor in every bite.",
-      address: "M Block Market, Greater Kailash 1, New Delhi",
-      source: "Popular chaat vendor",
-      mapsLink: "https://maps.app.goo.gl/GolgappePrince",
-      type: "veg",
-    },
-    {
-      id: "kebabs",
-      category: "Kebabs",
-      placeName: "Khan Chacha",
-      why: "Famous for its succulent seekh and kakori kebabs, wrapped in soft rumali rotis.",
-      address: "Shop No. 50, Middle Lane, Khan Market, New Delhi",
-      source: "Delhi's kebab institution",
-      mapsLink: "https://maps.app.goo.gl/KebabsKhanChacha",
-      type: "non-veg",
-    },
-    {
-      id: "pizza",
-      category: "Pizza",
-      placeName: "Leo's Pizzeria",
-      why: "Known for its authentic Neapolitan-style pizzas with fresh ingredients and a perfect crust.",
-      address: "28, Basant Lok Market, Vasant Vihar, New Delhi",
-      source: "Highly-rated pizzeria",
-      mapsLink: "https://maps.app.goo.gl/PizzaLeosPizzeria",
-      type: "veg",
-    },
-    {
-      id: "samosa",
-      category: "Samosa",
-      placeName: "Annapurna Sweets",
-      why: "Crispy, flaky pastry filled with spiced potatoes and peas, a perfect tea-time snack.",
-      address: "Multiple locations across Delhi",
-      source: "Local snack favorite",
-      mapsLink: "https://maps.app.goo.gl/SamosaAnnapurna",
-      type: "veg",
-    },
-    {
-      id: "rogan-josh",
-      category: "Rogan Josh",
-      placeName: "Corbett's Cafe",
-      why: "A rich, aromatic Kashmiri lamb curry, slow-cooked to tender perfection.",
-      address: "35, Hauz Khas Village, New Delhi",
-      source: "North Indian cuisine specialist",
-      mapsLink: "https://maps.app.goo.gl/RoganJoshCorbetts",
-      type: "non-veg",
-    },
-    {
-      id: "rajma-chawal",
-      category: "Rajma Chawal",
-      placeName: "Baba Nagpal Corner",
-      why: "Comfort food at its best: creamy kidney beans curry served with fluffy rice.",
-      address: "7/25, Old Rajinder Nagar Market, New Delhi",
-      source: "Student and local favorite",
-      mapsLink: "https://maps.app.goo.gl/RajmaChawalNagpal",
-      type: "veg",
-    },
-  ];
+  // Wrapped foodData in useMemo to prevent it from being re-created on every render
+  const foodData = useMemo(
+    () => [
+      {
+        id: "chole-bhature",
+        category: "Chole Bhature",
+        placeName: "Sita Ram Diwan Chand",
+        why: "Perfectly spiced chole, fluffy yet substantial bhature. A decades-old institution.",
+        address: "2243, Chuna Mandi, Paharganj, New Delhi",
+        source: "Local food expert consensus",
+        mapsLink: "https://maps.app.goo.gl/Fj777C2M472L6S3S7",
+        type: "veg",
+      },
+      {
+        id: "butter-chicken",
+        category: "Butter Chicken",
+        placeName: "Moti Mahal",
+        why: "The legendary birthplace of the dish. Creamy, tangy, and unapologetically rich.",
+        address: "3703, Netaji Subhash Marg, Daryaganj, New Delhi",
+        source: "Historical food records",
+        mapsLink: "https://maps.app.goo.gl/Gk888D3N583M7T4T8",
+        type: "non-veg",
+      },
+      {
+        id: "aloo-tikki",
+        category: "Aloo Tikki Chaat",
+        placeName: "Prabhu Chaat Bhandar",
+        why: "Crispy on the outside, soft on the inside. Drowned in a perfect blend of sweet and spicy chutneys.",
+        address: "Dholpur House, Shahjahan Road, Man Singh Road, New Delhi",
+        source: "Street food connoisseur network",
+        mapsLink: "https://maps.app.goo.gl/Hl999E4O694N8U5U9",
+        type: "veg",
+      },
+      {
+        id: "kulfi",
+        category: "Kulfi",
+        placeName: "Kuremal Mohan Lal Kulfi Wale",
+        why: "Inventive fruit-stuffed kulfis and intensely flavored classics. A unique, frozen delight.",
+        address:
+          "Shop No. 526, Kucha Pati Ram, Sitaram Bazar, Chawri Bazar, New Delhi",
+        source: "Generational family recommendation",
+        mapsLink: "https://maps.app.goo.gl/Im000F5P705O9V6V0",
+        type: "veg",
+      },
+      {
+        id: "shahi-paneer",
+        category: "Shahi Paneer",
+        placeName: "Kake Da Hotel",
+        why: "Rich, creamy, and authentic Mughlai Shahi Paneer with perfectly soft paneer cubes. A Delhi classic.",
+        address: "67, Municipal Market, Connaught Place, New Delhi",
+        source: "Local food blogger favorite",
+        mapsLink: "https://maps.app.goo.gl/ShahiPaneerKakeDaHotel",
+        type: "veg",
+      },
+      {
+        id: "dal-makhani",
+        category: "Dal Makhani",
+        placeName: "Bukhara (ITC Maurya)",
+        why: "Slow-cooked to perfection, this iconic Dal Makhani is renowned for its smoky flavor and velvety texture.",
+        address: "ITC Maurya, Diplomatic Enclave, Sardar Patel Marg, New Delhi",
+        source: "Globally acclaimed restaurant",
+        mapsLink: "https://maps.app.goo.gl/DalMakhaniBukhara",
+        type: "veg",
+      },
+      {
+        id: "chicken-biryani",
+        category: "Chicken Biryani",
+        placeName: "Andhra Bhavan",
+        why: "Spicy, aromatic, and packed with flavor, their Hyderabadi-style Chicken Biryani offers a fiery kick.",
+        address: "1, Ashoka Road, Feroze Shah Road, New Delhi",
+        source: "Authentic regional cuisine",
+        mapsLink: "https://maps.app.goo.gl/ChickenBiryaniAndhraBhavan",
+        type: "non-veg",
+      },
+      {
+        id: "momos",
+        category: "Momos",
+        placeName: "Dolma Aunty Momos",
+        why: "A legendary street food joint famous for its juicy, flavorful momos served with spicy red chutney.",
+        address: "Shop No. 39, Central Market, Lajpat Nagar II, New Delhi",
+        source: "Delhi's favorite momo spot",
+        mapsLink: "https://maps.app.goo.gl/MomosDolmaAunty",
+        type: "non-veg",
+      },
+      {
+        id: "jalebi",
+        category: "Jalebi",
+        placeName: "Old Famous Jalebi Wala",
+        why: "Crispy, syrupy, and made fresh, these jalebis are a sweet delight from Old Delhi's culinary heritage.",
+        address: "Dariba Kalan, Chandni Chowk, Old Delhi, New Delhi",
+        source: "Historic sweet shop",
+        mapsLink: "https://maps.app.goo.gl/JalebiOldFamous",
+        type: "veg",
+      },
+      {
+        id: "nihari",
+        category: "Nihari",
+        placeName: "Jawahar Hotel",
+        why: "A traditional slow-cooked meat stew, rich and flavorful, perfect for a hearty breakfast.",
+        address: "Matia Mahal Road, Near Jama Masjid, Old Delhi, New Delhi",
+        source: "Old Delhi's culinary gems",
+        mapsLink: "https://maps.app.goo.gl/NihariJawaharHotel",
+        type: "non-veg",
+      },
+      {
+        id: "parathas",
+        category: "Parathas",
+        placeName: "Paranthe Wali Gali",
+        why: "A historic lane dedicated to various stuffed parathas, deep-fried and served with chutneys and pickles.",
+        address: "Paranthe Wali Gali, Chandni Chowk, Old Delhi, New Delhi",
+        source: "Iconic street food lane",
+        mapsLink: "https://maps.app.goo.gl/ParathasGali",
+        type: "veg",
+      },
+      {
+        id: "golgappe",
+        category: "Golgappe/Pani Puri",
+        placeName: "Prince's Paan & Chaat",
+        why: "Crispy puris filled with spicy tangy water and chickpeas, a burst of flavor in every bite.",
+        address: "M Block Market, Greater Kailash 1, New Delhi",
+        source: "Popular chaat vendor",
+        mapsLink: "https://maps.app.goo.gl/GolgappePrince",
+        type: "veg",
+      },
+      {
+        id: "kebabs",
+        category: "Kebabs",
+        placeName: "Khan Chacha",
+        why: "Famous for its succulent seekh and kakori kebabs, wrapped in soft rumali rotis.",
+        address: "Shop No. 50, Middle Lane, Khan Market, New Delhi",
+        source: "Delhi's kebab institution",
+        mapsLink: "https://maps.app.goo.gl/KebabsKhanChacha",
+        type: "non-veg",
+      },
+      {
+        id: "pizza",
+        category: "Pizza",
+        placeName: "Leo's Pizzeria",
+        why: "Known for its authentic Neapolitan-style pizzas with fresh ingredients and a perfect crust.",
+        address: "28, Basant Lok Market, Vasant Vihar, New Delhi",
+        source: "Highly-rated pizzeria",
+        mapsLink: "https://maps.app.goo.gl/PizzaLeosPizzeria",
+        type: "veg",
+      },
+      {
+        id: "samosa",
+        category: "Samosa",
+        placeName: "Annapurna Sweets",
+        why: "Crispy, flaky pastry filled with spiced potatoes and peas, a perfect tea-time snack.",
+        address: "Multiple locations across Delhi",
+        source: "Local snack favorite",
+        mapsLink: "https://maps.app.goo.gl/SamosaAnnapurna",
+        type: "veg",
+      },
+      {
+        id: "rogan-josh",
+        category: "Rogan Josh",
+        placeName: "Corbett's Cafe",
+        why: "A rich, aromatic Kashmiri lamb curry, slow-cooked to tender perfection.",
+        address: "35, Hauz Khas Village, New Delhi",
+        source: "North Indian cuisine specialist",
+        mapsLink: "https://maps.app.goo.gl/RoganJoshCorbetts",
+        type: "non-veg",
+      },
+      {
+        id: "rajma-chawal",
+        category: "Rajma Chawal",
+        placeName: "Baba Nagpal Corner",
+        why: "Comfort food at its best: creamy kidney beans curry served with fluffy rice.",
+        address: "7/25, Old Rajinder Nagar Market, New Delhi",
+        source: "Student and local favorite",
+        mapsLink: "https://maps.app.goo.gl/RajmaChawalNagpal",
+        type: "veg",
+      },
+    ],
+    [] // Empty dependency array means foodData will only be created once
+  );
 
   // --- Authentication Handlers (Dummy Logic Only) ---
   const handleAuthSubmit = async (event) => {
@@ -200,29 +203,32 @@ function App() {
       return;
     }
 
-    setAuthMessage({ text: "", type: "" }); // Clear previous messages
+    setAuthMessage({ text: "", type: "" });
 
-    // Simulate successful login/registration
-    const dummyUserId = `dummy-${email.split("@")[0] || "user"}-${
-      email.length
-    }`;
-    setUser({ uid: dummyUserId, email: email });
+    const userId = `${email.split("@")[0] || "user"}-${Math.random()
+      .toString(36)
+      .substring(2, 9)}`;
+    setUser({ uid: userId, email: email });
     setAuthMessage({
-      text: `Dummy ${isLoginMode ? "login" : "registration"} successful!`,
+      text: `${isLoginMode ? "Login" : "Registration"} successful!`,
       type: "success",
     });
-    setCurrentScreen("home"); // Navigate to home screen
-    setCurrentFoodType(null); // Reset preference on dummy login
-    console.log("Dummy login/registration completed.");
+    setCurrentScreen("home");
+    setCurrentFoodType(null);
+    console.log(
+      `Simulated ${
+        isLoginMode ? "login" : "registration"
+      } completed for user: ${email}`
+    );
   };
 
   const handleLogout = () => {
-    console.log("Dummy logout initiated.");
+    console.log("Simulated logout initiated.");
     setUser(null);
-    setCurrentFoodType(null); // Reset preference on logout
-    setCurrentScreen("login"); // Go back to login screen
+    setCurrentFoodType(null);
+    setCurrentScreen("login");
     setAuthMessage({
-      text: "Logged out successfully (dummy mode).",
+      text: "Logged out successfully.",
       type: "info",
     });
   };
@@ -244,12 +250,12 @@ function App() {
   const handleBackToHome = useCallback(() => {
     setCurrentScreen("home");
     setSelectedDish(null);
-    setCurrentFoodType(null); // Reset preference when going back from dish to home
+    setCurrentFoodType(null);
   }, []);
 
   const handleBackToPreferences = useCallback(() => {
     setCurrentFoodType(null);
-    setCurrentScreen("home"); // Ensure we are on home screen
+    setCurrentScreen("home");
   }, []);
 
   const handlePreferenceSelect = useCallback((type) => {

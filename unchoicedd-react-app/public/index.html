@@ -48,30 +48,8 @@
     <!-- Babel for JSX transformation (for development only) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Firebase SDKs (exposed to window for App.js) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signInWithCustomToken, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Expose Firebase modules to the global scope (window object)
-        window.firebase = {
-            initializeApp,
-            getAuth,
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            onAuthStateChanged,
-            signInWithCustomToken,
-            signInAnonymously,
-            signOut,
-            getFirestore,
-            doc,
-            setDoc,
-            getDoc
-        };
-    </script>
-
     <!-- Your React App Component -->
+    <!-- This script loads your App.js file. The 'type="text/babel"' attribute is crucial for Babel to process its JSX. -->
     <script type="text/babel" src="App.js"></script>
 
     <script type="text/babel">
